@@ -1,6 +1,23 @@
 # Write your code here
 import random
 
+
+def will_win(choice, comp, options):
+    if choice not in options:
+        return -1
+    i = options.index(choice)
+    if i == 0:
+        reordered = options[1:]
+    else:
+        reordered = options[i+1:]
+        for op in options[:i]:
+            reordered.append(op)
+    j = reordered.index(comp)
+    if j >= len(reordered) / 2:
+        return True
+    return False
+
+
 users_file = open("rating.txt")
 
 name = input("Enter your name: ")
@@ -10,8 +27,17 @@ rating = 0
 for line in users_file:
     user, rate = line.split()
     if user == name:
-        rating = rate
+        rating = int(rate)
         break
+
+choices = input().split(",")
+if len(choices) == 1:
+    choices = ["rock", "paper", "scissors"]
+shuffled = []
+for item in choices:
+    shuffled.append(item)
+
+print("Okay, let's start")
 
 while True:
     option = input()
@@ -21,34 +47,21 @@ while True:
         break
     if option == "!rating":
         print("Your rating:", rating)
-        break
-
-    choices = ["rock", "paper", "scissors"]
-    random.shuffle(choices)
-    r_comp = choices[0]
+        continue
+    random.shuffle(shuffled)
+    r_comp = shuffled[0]
 
     if option == r_comp:
         print("There is a draw ({})".format(option))
         rating += 50
-    elif option == "rock":
-        if r_comp == "paper":
-            print("Sorry, but computer chose {}".format(r_comp))
-        else:
-            print("Well done. Computer chose {} and failed".format(r_comp))
-            rating += 100
-    elif option == "paper":
-        if r_comp == "rock":
-            print("Well done. Computer chose {} and failed".format(r_comp))
-            rating += 100
-        else:
-            print("Sorry, but computer chose {}".format(r_comp))
-    elif option == "scissors":
-        if r_comp == "paper":
-            print("Well done. Computer chose {} and failed".format(r_comp))
-            rating += 100
-        else:
-            print("Sorry, but computer chose {}".format(r_comp))
     else:
-        print("Invalid input")
+        win = will_win(option, r_comp, choices)
+        if win == -1:
+            print("Invalid input")
+        elif win:
+            print("Well done. Computer chose {} and failed".format(r_comp))
+            rating += 100
+        else:
+            print("Sorry, but computer chose {}".format(r_comp))
 
 users_file.close()
